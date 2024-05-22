@@ -9,18 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTaxis = void 0;
+exports.getTaxisById = exports.getTaxis = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-const getTaxis = () => __awaiter(void 0, void 0, void 0, function* () {
-    const taxisData = yield prisma.taxis.findMany({
-        // cursor: {
-        //     id: 6418,
-        // },
-        orderBy: {
-            id: 'asc',
-        },
+const getTaxis = (startIndex, limit) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.taxis.findMany({
+        skip: startIndex,
+        take: limit,
     });
-    return taxisData;
 });
 exports.getTaxis = getTaxis;
+const getTaxisById = (taxiId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield prisma.taxis.findUnique({
+        where: {
+            id: taxiId,
+        }
+    });
+});
+exports.getTaxisById = getTaxisById;

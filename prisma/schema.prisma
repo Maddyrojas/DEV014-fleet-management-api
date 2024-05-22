@@ -9,16 +9,16 @@ datasource db {
 }
 
 model taxis {
-  id           Int            @id(map: "Taxis_pkey")
-  plate        String         @db.VarChar
+  id           Int            @id(map: "taxis_pkey")
+  plate        String?
   trajectories trajectories[]
 }
 
 model trajectories {
-  id        Int      @id @default(autoincrement())
-  taxi_id   Int
-  date      DateTime @db.Timestamp(6)
-  latitude  Float
-  longitude Float
-  taxis     taxis    @relation(fields: [taxi_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "relation")
+  id        Int       @id(map: "trajectories_pkey") @default(autoincrement())
+  taxi_id    Int       @map("taxi_id")
+  date      DateTime? @db.Timestamp(6)
+  latitude  Float?
+  longitude Float?
+  taxis     taxis     @relation(fields: [taxi_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_taxis")
 }
