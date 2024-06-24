@@ -1,12 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-
-export const getTaxiLocations = async (id: number, date: Date) => {
+interface TaxiLocation {
+  id: number;
+  taxis: {
+    plate: string | null;
+  };
+  latitude: number | null;
+  longitude: number | null;
+  date: Date | null;
+}
+export const getTaxiLocations = async (id: number, date: Date): Promise<TaxiLocation[]> => {
   try {
     return  await prisma.trajectories.findMany({
-      select:{ //id, placa, latitud, longitud y timestamp (fecha y hora).
+      select:{
         id: true,
-        taxis: {// como convertirlo a plate OJO
+        taxis: {
           select: {
             plate: true,
           }
@@ -28,26 +36,30 @@ export const getTaxiLocations = async (id: number, date: Date) => {
     });
   }
   catch (error) {
-    return error;
+    throw new Error(`Error fetching taxi locations: `);
   }
 }
-export const getLastTaxiLocations = async (id: string, searchDate: Date) => {
-    try {
-      return  await prisma.trajectories.findMany({
-        select:{
-            latitude: true,
-            longitude: true,
-            date: true,
-            taxi_id: true,
-            id: true
+export const getLastTaxisLocation = async () => {
+  try {
+    return  await prisma.trajectories.findMany({
+      select:{
+        taxi_id: true,
+        taxis: {
+          select: {
+            plate: true,
+          }
         },
-        where: {
-              taxi_id: parseInt(id),
-              date: searchDate,
-        },
-      });
-    }
-    catch (error) {
-        return error;
-    }
+        date: true,
+        latitude: true,
+        longitude: true,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+      distinct: ["taxi_id"],
+    });
+  }
+  catch (error) {
+    return error;
+  }
 }

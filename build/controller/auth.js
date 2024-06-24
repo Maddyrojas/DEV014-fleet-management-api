@@ -9,18 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllTaxis = void 0;
-const taxiService_1 = require("../services/taxiService");
-const getAllTaxis = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createAuth = void 0;
+const createAuth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const page = +req.query.page || 1;
-        const limit = +req.query.limit || 10;
-        const startIndex = (page - 1) * limit;
-        const plateIn = req.query.plate;
-        if (page < 0 || limit < 0) {
-            return res.status(400).json({ message: "The page number and limit cannot be less than 0" });
-        }
-        const taxis = yield (0, taxiService_1.getTaxis)(startIndex, limit, plateIn);
+        const { email, password } = req.body;
+        const taxis = yield (0, authService_1.createToken)(email, password);
         console.log(taxis);
         if (taxis.length === 0) {
             return res.status(404).json({ message: "No taxis found, please change the license plate number" });
@@ -36,4 +29,5 @@ const getAllTaxis = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(500).json({ error: 'error al obtener los taxis' });
     }
 });
-exports.getAllTaxis = getAllTaxis;
+exports.createAuth = createAuth;
+const authService_1 = require("../services/authService");

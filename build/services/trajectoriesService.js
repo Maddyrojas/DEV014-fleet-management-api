@@ -9,19 +9,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLastTaxiLocations = exports.getTaxiLocations = void 0;
+exports.getLastTaxisLocation = exports.getTaxiLocations = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-const getTaxiLocations = (id, searchDate, startIndex, limit) => __awaiter(void 0, void 0, void 0, function* () {
+const getTaxiLocations = (id, date) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield prisma.trajectories.findMany({
-            skip: startIndex,
-            take: limit,
+            select: {
+                id: true,
+                taxis: {
+                    select: {
+                        plate: true,
+                    }
+                },
+                latitude: true,
+                longitude: true,
+                date: true,
+            },
             where: {
-                taxiId: parseInt(id),
+                taxi_id: id,
                 date: {
-                    gte: searchDate, // Fecha mayor o igual a la fecha especificada // todas las ubis que sean >= a la fecha
-                    lt: new Date(searchDate.getTime() + 24 * 60 * 60 * 1000) // Fecha menor a 24 horas después de la fecha especificada
+                    gte: new Date(date.setHours(0, 0, 0, 0)), // Medianoche del día especificado
+                    lt: new Date(date.setHours(24, 0, 0, 0)), // Medianoche del día siguiente
                 }
             },
             orderBy: {
@@ -30,28 +39,32 @@ const getTaxiLocations = (id, searchDate, startIndex, limit) => __awaiter(void 0
         });
     }
     catch (error) {
-        return error;
+        throw new Error(`Error fetching taxi locations: `); //tengo el problema que no me deja usar error unkonw
     }
 });
 exports.getTaxiLocations = getTaxiLocations;
-const getLastTaxiLocations = (id, searchDate) => __awaiter(void 0, void 0, void 0, function* () {
+const getLastTaxisLocation = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield prisma.trajectories.findMany({
             select: {
+                taxi_id: true,
+                taxis: {
+                    select: {
+                        plate: true,
+                    }
+                },
+                date: true,
                 latitude: true,
                 longitude: true,
-                date: true,
-                taxiId: true,
-                id: true
             },
-            where: {
-                taxiId: parseInt(id),
-                date: searchDate,
+            orderBy: {
+                date: 'desc',
             },
+            distinct: ["taxi_id"],
         });
     }
     catch (error) {
         return error;
     }
 });
-exports.getLastTaxiLocations = getLastTaxiLocations;
+exports.getLastTaxisLocation = getLastTaxisLocation;

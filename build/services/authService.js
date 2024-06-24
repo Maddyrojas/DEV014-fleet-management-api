@@ -9,26 +9,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTaxis = void 0;
+exports.createToken = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-const getTaxis = (startIndex, limit, plate) => __awaiter(void 0, void 0, void 0, function* () {
-    if (plate) {
-        return yield prisma.taxis.findMany({
-            skip: startIndex,
-            take: limit,
-            where: {
-                plate: {
-                    startsWith: plate,
-                },
+const createToken = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return yield prisma.auth.create({
+            data: {
+                accesstoken: 1,
+                user: {
+                    id: 2,
+                    email: email,
+                    role: role,
+                }
+            },
+            select: {
+                accesstoken: true,
+                user: true,
             }
         });
     }
-    else {
-        return yield prisma.taxis.findMany({
-            skip: startIndex,
-            take: limit,
-        });
+    catch (error) {
+        return error;
     }
 });
-exports.getTaxis = getTaxis;
+exports.createToken = createToken;
